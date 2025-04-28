@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "new": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp",
+        "qlist": "cpp",
+        "variant": "cpp",
+        "qstyle": "cpp",
+        "random": "cpp",
+        "qwidget": "cpp",
+        "qpainter": "cpp",
+        "qscrollarea": "cpp",
+        "qhboxlayout": "cpp",
+        "*.inc": "cpp",
+        "qframe": "cpp",
+        "qstackedwidget": "cpp",
+        "qeasingcurve": "cpp",
+        "qparallelanimationgroup": "cpp",
+        "qplaintextedit": "cpp",
+        "qvector": "cpp",
+        "qtimer": "cpp",
+        "qcolor": "cpp"
+    }
+}

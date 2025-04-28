@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/ed">
+        <file>stylesheets/default.css</file>
+        <file>stylesheets/default_linux.css</file>
+        <file>stylesheets/focus_highlighting.css</file>
+        <file>stylesheets/focus_highlighting_linux.css</file>
+        
+        <file>images/close-button.svg</file>
+        <file>images/close-button-focused.svg</file>
+        <file>images/detach-button.svg</file>
+        <file>images/detach-button-focused.svg</file>
+        <file>images/restore-button.svg</file>
+        <file>images/restore-button-focused.svg</file>
+    </qresource>
+</RCC>
