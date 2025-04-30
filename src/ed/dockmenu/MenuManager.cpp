@@ -197,11 +197,15 @@ void EMenuManager::registerFloatingWidget(EMenuFloating *floatingWidget) {
 }
 
 void EMenuManager::redockMenu(bool closed) {
-    if (d->floatingWidget != nullptr) {
-        d->floatingWidget->removeMenuWidget();
-        d->floatingWidget->close();
-        d->floatingWidget = nullptr;
+    if (d->floatingWidget == nullptr) {
+        return;
     }
+
+    d->floatingWidget->removeMenuWidget();
+    if (!closed) {
+        d->floatingWidget->close();
+    }
+    d->floatingWidget = nullptr;
 
     switch (d->direction) {
         case MenuDirection::Left:

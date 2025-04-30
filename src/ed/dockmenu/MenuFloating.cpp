@@ -41,16 +41,19 @@ struct EMenuFloating::Private {
 
     eDragState draggingState = DraggingInactive;
     QPoint dragStartMousePosition;
+
+    bool isClosing;
 };
 
 EMenuFloating::EMenuFloating(EMenuManager* menuManager) : QWidget(menuManager), d(new Private) {
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint |
-                   Qt::WindowMaximizeButtonHint);
+                   Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QApplication::windowIcon());
     setWindowTitle(tr("Menu"));
 
     d->menuManager = menuManager;
+    d->isClosing = false;
 
     switch (menuManager->direction()) {
         case MenuDirection::Left:
@@ -95,18 +98,24 @@ EMenuFloating::~EMenuFloating() {
 }
 
 void EMenuFloating::removeMenuWidget() {
-    disconnect(d->tabBar, &EMenuTabBar::toolSelected, this, &EMenuFloating::onToolSelected);
-    disconnect(d->tabBar, &EMenuTabBar::toolClosed, this, &EMenuFloating::onToolClosed);
+    d->isClosing = true;
+    if (d->tabBar != nullptr) {
+        disconnect(d->tabBar, &EMenuTabBar::toolSelected, this, &EMenuFloating::onToolSelected);
+        disconnect(d->tabBar, &EMenuTabBar::toolClosed, this, &EMenuFloating::onToolClosed);
+        d->layout->removeWidget(d->tabBar);
+        d->tabBar = nullptr;
+    }
 
-    d->layout->removeWidget(d->tabBar);
-    d->layout->removeWidget(d->menuAreaWidget);
-
-    d->tabBar = nullptr;
-    d->menuAreaWidget = nullptr;
+    if (d->menuAreaWidget != nullptr) {
+        d->layout->removeWidget(d->menuAreaWidget);
+        d->menuAreaWidget = nullptr;
+    }
 }
 
 void EMenuFloating::closeEvent(QCloseEvent* event) {
-    d->menuManager->redockMenu(true);
+    if (!d->isClosing) {
+        d->menuManager->redockMenu(true);
+    }
     event->accept();  // Proceed with close
 }
 
