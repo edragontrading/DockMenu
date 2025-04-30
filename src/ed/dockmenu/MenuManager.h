@@ -64,7 +64,7 @@ private:
     void loadStylesheet();
     void setDefaultSize();
     void setClosedSize();
-    bool menuVisible();
+    bool menuVisible(const QList<int>& sizes);
 
 private Q_SLOTS:
     void onMenuDragFinished();

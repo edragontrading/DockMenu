@@ -24,7 +24,7 @@
 #include "ed/dockmenu/MenuManager.h"
 
 #include <QBoxLayout>
-#include <QByteArray>
+#include <QList>
 #include <QFile>
 #include <QMainWindow>
 
@@ -62,7 +62,7 @@ struct EMenuManager::Private {
     QBoxLayout *layout;
     EMenuTabBar *styleBar;
     ESplitter *splitter;
-    QByteArray splitterState;
+    QList<int> splitterState;
     EMenuAreaWidget *menuArea;
     EMenuFloating *floatingWidget = nullptr;
 };
@@ -75,6 +75,7 @@ EMenuManager::EMenuManager(MenuDirection direction, QWidget *parent) : QFrame(pa
     d->toolClosed = true;
     d->splitterReady = false;
     d->direction = direction;
+    d->splitterState = QList<int>();
     d->styleBar = new EMenuTabBar(direction, this);
     d->menuArea = new EMenuAreaWidget(direction, this);
 
@@ -187,7 +188,6 @@ EMenuAreaWidget *EMenuManager::takeMenuAreaWidget() {
     if (index != -1) {
         d->splitter->widget(index)->setParent(nullptr);  // Detach
     }
-
     return d->menuArea;
 }
 
@@ -271,12 +271,12 @@ EProvider &EMenuManager::provider() {
 }
 
 void EMenuManager::onMenuDragFinished() {
-    if (!menuVisible()) {
+    if (!menuVisible(d->splitter->sizes())) {
         d->toolClosed = true;
         d->styleBar->setClose();
         return;
     }
-    d->splitterState = d->splitter->saveState();
+    d->splitterState = d->splitter->sizes();
 
     if (d->toolClosed) {
         int currentIndex = d->menuArea->getCurrentIndex();
@@ -303,13 +303,13 @@ void EMenuManager::onToolSelected(int index) {
 
     d->toolClosed = false;
 
-    if (menuVisible()) {
+    if (menuVisible(d->splitter->sizes())) {
         d->menuArea->toolSelected(index);
         return;
     }
 
-    if (!d->splitterState.isEmpty()) {
-        d->splitter->restoreState(d->splitterState);
+    if (menuVisible(d->splitterState)) {
+        d->splitter->setSizes(d->splitterState);
         d->menuArea->toolSelected(index);
         return;
     }
@@ -323,7 +323,7 @@ void EMenuManager::onSplitterReady() {
         setDefaultSize();
         d->splitterReady = true;
     }
-    d->splitterState = d->splitter->saveState();
+    d->splitterState = d->splitter->sizes();
 }
 
 void EMenuManager::loadStylesheet() {
@@ -396,15 +396,19 @@ void EMenuManager::setClosedSize() {
     }
 }
 
-bool EMenuManager::menuVisible() {
+bool EMenuManager::menuVisible(const QList<int> &sizes) {
+    if (sizes.isEmpty() || sizes.count() < 2) {
+        return false;
+    }
+
     switch (d->direction) {
         case MenuDirection::Left:
         case MenuDirection::Top:
-            return (d->splitter->sizes()[0] != 0);
+            return (sizes[0] != 0);
 
         case MenuDirection::Right:
         case MenuDirection::Bottom:
-            return (d->splitter->sizes()[1] != 0);
+            return (sizes[1] != 0);
 
         default:
             break;
