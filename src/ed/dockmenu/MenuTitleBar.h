@@ -33,6 +33,8 @@ class EMenuManager;
 
 class ED_EXPORT EMenuTitleBar : public QFrame {
     Q_OBJECT
+public:
+    using Super = QFrame;
 
 public:
     explicit EMenuTitleBar(EMenuManager* manager, const QString& title, QWidget* parent = nullptr);
@@ -42,10 +44,17 @@ public:
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* ev) override;
+    void mouseReleaseEvent(QMouseEvent* ev) override;
+    void mouseMoveEvent(QMouseEvent* ev) override;
 
 private Q_SLOTS:
     void onUndockButtonClicked();
     void onDockButtonClicked();
+
+private:
+    void saveDragStartMousePosition(const QPoint& globalPos);
+    bool isDraggingState(eDragState dragState) const;
 
 private:
     struct Private;

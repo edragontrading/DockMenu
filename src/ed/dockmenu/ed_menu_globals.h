@@ -26,6 +26,7 @@
 
 #include <QAbstractButton>
 #include <QDebug>
+#include <QMouseEvent>
 #include <QObject>
 #include <QStyle>
 
@@ -108,6 +109,22 @@ void setToolTip(QObjectPtr obj, const QString& tip) {
     Q_UNUSED(tip);
 #endif
 }
+
+/**
+ * Helper function for access to mouse event global position in Qt5 and
+ */
+inline QPoint globalPositionOf(QMouseEvent* ev) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return ev->globalPosition().toPoint();
+#else
+    return ev->globalPos();
+#endif
+}
+
+/**
+ * Capture the appearance of 2 different widgets into a single QPixmap
+ */
+QPixmap createPixmap(QWidget* wLeftTop, QWidget* wRightBottom, Qt::Orientation orient);
 
 /**
  * Creates a semi transparent pixmap from the given pixmap Source.

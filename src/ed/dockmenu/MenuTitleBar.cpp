@@ -29,6 +29,7 @@
 #include <QStyle>
 #include <QToolButton>
 
+#include "ed/dockmenu/DragPreview.h"
 #include "ed/dockmenu/MenuFloating.h"
 #include "ed/dockmenu/MenuManager.h"
 #include "ed/dockmenu/MenuTitleBar_p.h"
@@ -39,10 +40,15 @@ struct EMenuTitleBar::Private {
     Private() = default;
 
     bool floating;
+    eDragState dragState;
+    QPoint globalDragStartMousePosition;
+    QPoint dragStartMousePosition;
+
     QLabel* title;
     QBoxLayout* layout;
     QToolButton* undockButton;
     QToolButton* dockButton;
+    EDragPreview* dragPreviewWidget;
 
     EMenuManager* menuManager;
 };
@@ -56,6 +62,8 @@ EMenuTitleBar::EMenuTitleBar(EMenuManager* manager, const QString& title, QWidge
 
     d->floating = false;
     d->menuManager = manager;
+    d->dragState = DraggingInactive;
+    d->dragPreviewWidget = nullptr;
 
     d->layout = new QBoxLayout(QBoxLayout::LeftToRight);
     d->layout->setContentsMargins(0, 0, 0, 0);
@@ -124,6 +132,68 @@ void EMenuTitleBar::mouseDoubleClickEvent(QMouseEvent* event) {
     }
 }
 
+void EMenuTitleBar::mousePressEvent(QMouseEvent* ev) {
+    if (ev->button() == Qt::LeftButton) {
+        ev->accept();
+        this->saveDragStartMousePosition(internal::globalPositionOf(ev));
+        d->dragState = DraggingMousePressed;
+        return;
+    }
+    Super::mousePressEvent(ev);
+}
+
+void EMenuTitleBar::mouseReleaseEvent(QMouseEvent* ev) {
+    if (ev->button() != Qt::LeftButton) {
+        Super::mouseReleaseEvent(ev);
+        return;
+    }
+
+    auto currentDragState = d->dragState;
+    d->globalDragStartMousePosition = QPoint();
+    d->dragStartMousePosition = QPoint();
+    d->dragState = DraggingInactive;
+
+    if (DraggingFloatingWidget == currentDragState) {
+        ev->accept();
+        d->dragPreviewWidget->finishDragging();
+    }
+    Super::mouseReleaseEvent(ev);
+}
+
+void EMenuTitleBar::mouseMoveEvent(QMouseEvent* ev) {
+    if (!(ev->buttons() & Qt::LeftButton) || this->isDraggingState(DraggingInactive)) {
+        d->dragState = DraggingInactive;
+        Super::mouseMoveEvent(ev);
+        return;
+    }
+
+    // move floating window
+    if (this->isDraggingState(DraggingFloatingWidget)) {
+        d->dragPreviewWidget->moveFloating();
+        Super::mouseMoveEvent(ev);
+        return;
+    }
+
+    auto mappedPos = mapToParent(ev->pos());
+    bool mouseOutsideBar = (mappedPos.x() < 0) || (mappedPos.x() > parentWidget()->rect().right());
+
+    // Maybe a fixed drag distance is better here ?
+    int DragDistanceY = qAbs(d->globalDragStartMousePosition.y() - internal::globalPositionOf(ev).y());
+    if (DragDistanceY >= EMenuManager::startDragDistance() || mouseOutsideBar) {
+        QSize size = d->menuManager->getMenuSize();
+
+        d->dragState = DraggingFloatingWidget;
+        d->dragPreviewWidget = new EDragPreview(d->menuManager);
+        this->connect(d->dragPreviewWidget, &EDragPreview::draggingCanceled,
+                      [this]() { this->d->dragState = DraggingInactive; });
+
+        d->dragPreviewWidget->startFloating(d->dragStartMousePosition, size);
+        return;
+    }
+
+    Super::mouseMoveEvent(ev);
+}
+
 void EMenuTitleBar::onUndockButtonClicked() {
     QSize size = d->menuManager->getMenuSize();
     QPoint point = this->mapFromGlobal(QCursor::pos());
@@ -134,6 +204,15 @@ void EMenuTitleBar::onUndockButtonClicked() {
 
 void EMenuTitleBar::onDockButtonClicked() {
     d->menuManager->redockMenu(false);
+}
+
+void EMenuTitleBar::saveDragStartMousePosition(const QPoint& globalPos) {
+    d->globalDragStartMousePosition = globalPos;
+    d->dragStartMousePosition = this->mapFromGlobal(globalPos);
+}
+
+bool EMenuTitleBar::isDraggingState(eDragState dragState) const {
+    return d->dragState == dragState;
 }
 
 ESpacerWidget::ESpacerWidget(QWidget* Parent /*= nullptr*/) : Super(Parent) {

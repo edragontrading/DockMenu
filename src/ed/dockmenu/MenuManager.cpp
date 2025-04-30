@@ -23,10 +23,12 @@
 
 #include "ed/dockmenu/MenuManager.h"
 
+#include <QApplication>
 #include <QBoxLayout>
-#include <QList>
 #include <QFile>
+#include <QList>
 #include <QMainWindow>
+#include <QPainter>
 
 #include "ed/dockmenu/MenuAreaWidget.h"
 #include "ed/dockmenu/MenuButton.h"
@@ -173,25 +175,31 @@ MenuDirection EMenuManager::direction() const {
 }
 
 EMenuTabBar *EMenuManager::takeTabBar() {
-    disconnect(d->styleBar, &EMenuTabBar::toolSelected, this, &EMenuManager::onToolSelected);
-    disconnect(d->styleBar, &EMenuTabBar::toolClosed, this, &EMenuManager::onToolClosed);
-
-    d->layout->removeWidget(d->styleBar);
+    int index = d->layout->indexOf(d->styleBar);
+    if (index != -1) {
+        disconnect(d->styleBar, &EMenuTabBar::toolSelected, this, &EMenuManager::onToolSelected);
+        disconnect(d->styleBar, &EMenuTabBar::toolClosed, this, &EMenuManager::onToolClosed);
+        d->layout->removeWidget(d->styleBar);
+    }
     return d->styleBar;
 }
 
 EMenuAreaWidget *EMenuManager::takeMenuAreaWidget() {
-    disconnect(qobject_cast<ESplitterHandle *>(d->splitter->handle(1)), &ESplitterHandle::dragFinished, this,
-               &EMenuManager::onMenuDragFinished);
-
     int index = d->splitter->indexOf(d->menuArea);
     if (index != -1) {
+        disconnect(qobject_cast<ESplitterHandle *>(d->splitter->handle(1)), &ESplitterHandle::dragFinished, this,
+                   &EMenuManager::onMenuDragFinished);
         d->splitter->widget(index)->setParent(nullptr);  // Detach
     }
     return d->menuArea;
 }
 
 void EMenuManager::registerFloatingWidget(EMenuFloating *floatingWidget) {
+    if (d->floatingWidget != nullptr) {
+        d->floatingWidget->removeMenuWidget();
+        d->floatingWidget->close();
+    }
+
     d->floatingWidget = floatingWidget;
     updateFloatingState(true);
 }
@@ -207,28 +215,17 @@ void EMenuManager::redockMenu(bool closed) {
     }
     d->floatingWidget = nullptr;
 
-    switch (d->direction) {
-        case MenuDirection::Left:
-        case MenuDirection::Top:
-            d->splitter->insertWidget(0, d->menuArea);
-            d->splitter->setCollapsible(0, true);
-            break;
-
-        case MenuDirection::Right:
-        case MenuDirection::Bottom:
-            d->splitter->addWidget(d->menuArea);
-            d->splitter->setCollapsible(1, true);
-            break;
-
-        default:
-            break;
+    if (d->direction == MenuDirection::Left || d->direction == MenuDirection::Top) {
+        d->splitter->insertWidget(0, d->menuArea);
+        d->splitter->setCollapsible(0, true);
+    } else {
+        d->splitter->addWidget(d->menuArea);
+        d->splitter->setCollapsible(1, true);
     }
 
     if (!closed) {
         int currentIndex = d->menuArea->getCurrentIndex();
-        if (currentIndex >= 0) {
-            d->styleBar->setSelected(currentIndex);
-        }
+        d->styleBar->setSelected(currentIndex);
         setDefaultSize();
         d->toolClosed = false;
     } else {
@@ -245,7 +242,6 @@ void EMenuManager::redockMenu(bool closed) {
     connect(d->styleBar, &EMenuTabBar::toolClosed, this, &EMenuManager::onToolClosed);
 
     updateFloatingState(false);
-
     this->update();
 }
 
@@ -254,20 +250,40 @@ void EMenuManager::updateFloatingState(bool floating) {
 }
 
 QSize EMenuManager::getMenuSize() const {
-    switch (d->direction) {
-        case MenuDirection::Left:
-        case MenuDirection::Right:
-            return QSize(d->styleBar->size().width() + d->menuArea->size().width(), d->styleBar->size().height());
-            break;
+    int maxWidth = d->styleBar->size().width() + d->menuArea->size().width();
+    int maxHeight = d->styleBar->size().height() + d->menuArea->size().height();
 
-        default:
-            return QSize(d->styleBar->size().width(), d->styleBar->size().height() + d->menuArea->size().height());
-            break;
+    if (d->direction == MenuDirection::Left || d->direction == MenuDirection::Right) {
+        return QSize(maxWidth, d->styleBar->size().height());
     }
+
+    return QSize(d->styleBar->size().width(), maxHeight);
+}
+
+QPixmap EMenuManager::captureMenuWidgets() {
+    QPixmap pixmaptabBar(d->styleBar->size());
+    d->styleBar->render(&pixmaptabBar);
+
+    QPixmap pixmapMenuArea(d->menuArea->size());
+    d->menuArea->render(&pixmapMenuArea);
+
+    if (d->direction == MenuDirection::Left) {
+        return internal::createPixmap(d->styleBar, d->menuArea, Qt::Horizontal);
+    } else if (d->direction == MenuDirection::Right) {
+        return internal::createPixmap(d->menuArea, d->styleBar, Qt::Horizontal);
+    } else if (d->direction == MenuDirection::Top) {
+        return internal::createPixmap(d->styleBar, d->menuArea, Qt::Vertical);
+    }
+
+    return internal::createPixmap(d->menuArea, d->styleBar, Qt::Vertical);
 }
 
 EProvider &EMenuManager::provider() {
     return ed::EProvider::instance();
+}
+
+int EMenuManager::startDragDistance() {
+    return QApplication::startDragDistance() * 1.5;
 }
 
 void EMenuManager::onMenuDragFinished() {
@@ -280,10 +296,8 @@ void EMenuManager::onMenuDragFinished() {
 
     if (d->toolClosed) {
         int currentIndex = d->menuArea->getCurrentIndex();
-        if (currentIndex >= 0) {
-            d->styleBar->setSelected(currentIndex);
-            d->toolClosed = false;
-        }
+        d->styleBar->setSelected(currentIndex);
+        d->toolClosed = false;
     }
 }
 
@@ -401,20 +415,12 @@ bool EMenuManager::menuVisible(const QList<int> &sizes) {
         return false;
     }
 
-    switch (d->direction) {
-        case MenuDirection::Left:
-        case MenuDirection::Top:
-            return (sizes[0] != 0);
-
-        case MenuDirection::Right:
-        case MenuDirection::Bottom:
-            return (sizes[1] != 0);
-
-        default:
-            break;
+    if (d->direction == MenuDirection::Left || d->direction == MenuDirection::Top) {
+        return (sizes[0] != 0);
     }
 
-    return false;
+    // Right & Bottom
+    return (sizes[1] != 0);
 }
 
 }  // namespace ed

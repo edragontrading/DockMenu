@@ -25,6 +25,7 @@
 //============================================================================
 
 #include <QFrame>
+#include <QPixmap>
 
 #include "ed/dockmenu/ed_menu_globals.h"
 
@@ -58,7 +59,10 @@ public:
 
     void registerFloatingWidget(EMenuFloating* floatingWidget);
 
+    QPixmap captureMenuWidgets();
+
     static EProvider& provider();
+    static int startDragDistance();
 
 private:
     void loadStylesheet();

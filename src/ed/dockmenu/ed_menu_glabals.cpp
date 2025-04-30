@@ -29,6 +29,38 @@
 namespace ed {
 namespace internal {
 
+QPixmap createPixmap(QWidget* wLeftTop, QWidget* wRightBottom, Qt::Orientation orient) {
+    int totalWidth = 0;
+    int totalHeight = 0;
+    QPixmap pixmapLeftTop(wLeftTop->size());
+    wLeftTop->render(&pixmapLeftTop);
+
+    QPixmap pixmapRightBottom(wRightBottom->size());
+    wRightBottom->render(&pixmapRightBottom);
+
+    if (orient == Qt::Horizontal) {
+        totalWidth = pixmapLeftTop.width() + pixmapRightBottom.width();
+        totalHeight = qMax(pixmapLeftTop.height(), pixmapRightBottom.height());
+    } else {
+        totalWidth = qMax(pixmapLeftTop.width(), pixmapRightBottom.width());
+        totalHeight = pixmapLeftTop.height() + pixmapRightBottom.height();
+    }
+
+    QPixmap combinedPixmap(totalWidth, totalHeight);
+    combinedPixmap.fill(Qt::transparent);
+    QPainter painter(&combinedPixmap);
+
+    if (orient == Qt::Horizontal) {
+        painter.drawPixmap(0, 0, pixmapLeftTop);
+        painter.drawPixmap(pixmapLeftTop.width(), 0, pixmapRightBottom);
+    } else {
+        painter.drawPixmap(0, 0, pixmapLeftTop);
+        painter.drawPixmap(0, pixmapLeftTop.height(), pixmapRightBottom);
+    }
+
+    return combinedPixmap;
+}
+
 QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity) {
     QPixmap TransparentPixmap(Source.size());
     TransparentPixmap.fill(Qt::transparent);
