@@ -32,6 +32,7 @@ set(DOCK_MENU_SRCS
     ed/dockmenu/MenuManager.cpp
     ed/dockmenu/MenuTabBar.cpp
     ed/dockmenu/MenuTitleBar.cpp
+    ed/dockmenu/MenuFloating.cpp
     ed/dockmenu/MenuWidget.cpp
     ed/dockmenu/MouseTracker.cpp
     ed/dockmenu/SlidingStacked.cpp
@@ -49,6 +50,7 @@ set(DOCK_MENU_HEADERS
     ed/dockmenu/MenuTabBar.h
     ed/dockmenu/MenuTitleBar.h
     ed/dockmenu/MenuWidget.h
+    ed/dockmenu/MenuFloating.h
     ed/dockmenu/MouseTracker.h
     ed/dockmenu/SlidingStacked.h
     ed/dockmenu/Splitter.h

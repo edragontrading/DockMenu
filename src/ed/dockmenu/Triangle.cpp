@@ -38,6 +38,9 @@ ETriangle::ETriangle(ETriangle::Type type, QSize size, QWidget* parent) : QWidge
     }
 }
 
+ETriangle::~ETriangle() {
+}
+
 void ETriangle::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     QPolygon triangle;

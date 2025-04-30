@@ -62,8 +62,6 @@ EMenuButton::EMenuButton(MenuDirection direction, const QSize& iconSize, const Q
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     }
 
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
     d->tooltip = new ETooltip(direction, this);
     d->tooltip->setToolTipText(tooltipText);
     d->direction = direction;
@@ -98,16 +96,16 @@ void EMenuButton::paintEvent(QPaintEvent* event) {
         QRect lineRect;
         switch (d->direction) {
             case MenuDirection::Left:
-                lineRect = QRect(0, 0, 3, height());  // 4px wide on left
+                lineRect = QRect(0, 0, 2, height());  // 2px wide on left
                 break;
             case MenuDirection::Right:
-                lineRect = QRect(width() - 3, 0, 3, height());  // 4px wide on right
+                lineRect = QRect(width() - 2, 0, 2, height());  // 2px wide on right
                 break;
             case MenuDirection::Top:
-                lineRect = QRect(0, 0, width(), 3);  // 4px high on top
+                lineRect = QRect(0, 0, width(), 2);  // 2px high on top
                 break;
             case MenuDirection::Bottom:
-                lineRect = QRect(0, height() - 3, width(), 3);  // 4px high on bottom
+                lineRect = QRect(0, height() - 2, width(), 2);  // 2px high on bottom
                 break;
             default:
                 break;
@@ -118,8 +116,15 @@ void EMenuButton::paintEvent(QPaintEvent* event) {
 
 void EMenuButton::enterEvent(QEnterEvent* event) {
     QToolButton::enterEvent(event);
-    QPoint globalPos = mapToGlobal(QPoint(width() + 3, (height() - d->tooltip->height()) / 2));
+    QPoint globalPos;
+
+    if (d->direction == MenuDirection::Right) {
+        globalPos = mapToGlobal(-QPoint(d->tooltip->width() + 3, (-height() + d->tooltip->height()) / 2));
+    } else {
+        globalPos = mapToGlobal(QPoint(width() + 3, (height() - d->tooltip->height()) / 2));
+    }
     d->tooltip->showTooltip(globalPos);
+
     if (!isChecked()) {
         setIcon(d->checkedIcon);
     }

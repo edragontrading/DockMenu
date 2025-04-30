@@ -30,20 +30,16 @@
 
 namespace ed {
 
+class EMenuManager;
+
 class ED_EXPORT EMenuWidget : public QScrollArea {
     Q_OBJECT
 
 public:
-    explicit EMenuWidget(const QString& name, QWidget* widget, QWidget* parent = nullptr);
-    ~EMenuWidget();
+    explicit EMenuWidget(EMenuManager* manager, const QString& name, QWidget* widget, QWidget* parent = nullptr);
+    ~EMenuWidget() override;
 
-Q_SIGNALS:
-    void undockClicked();
-    void dockClicked();
-
-private Q_SLOTS:
-    void onUndockButtonClicked();
-    void onDockButtonClicked();
+    void updateState(bool floating);
 
 private:
     struct Private;

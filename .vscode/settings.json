@@ -19,6 +19,11 @@
         "qplaintextedit": "cpp",
         "qvector": "cpp",
         "qtimer": "cpp",
-        "qcolor": "cpp"
+        "qcolor": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "span": "cpp",
+        "utility": "cpp"
     }
 }

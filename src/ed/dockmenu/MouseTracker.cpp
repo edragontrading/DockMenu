@@ -33,6 +33,13 @@ MouseTracker::MouseTracker(QObject* parent) : QObject(parent), m_timer(new QTime
     start();
 }
 
+MouseTracker::~MouseTracker() {
+    if (m_timer->isActive()) {
+        m_timer->stop();
+    }
+    delete m_timer;
+}
+
 MouseTracker& MouseTracker::instance() {
     if (!m_instance) {
         m_instance = new MouseTracker();

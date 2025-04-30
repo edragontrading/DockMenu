@@ -39,6 +39,8 @@ public:
     static MouseTracker& instance();
     void stop();
 
+    ~MouseTracker() override;
+
 Q_SIGNALS:
     void mouseMoved(const QPoint& pos);  // Optional signal if others need to observe
 

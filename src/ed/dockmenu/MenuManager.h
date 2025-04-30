@@ -31,6 +31,9 @@
 namespace ed {
 
 class EProvider;
+class EMenuTabBar;
+class EMenuAreaWidget;
+class EMenuFloating;
 
 class ED_EXPORT EMenuManager : public QFrame {
     Q_OBJECT
@@ -43,14 +46,27 @@ public:
 
     void setCentralWidget(QWidget* widget);
 
+    MenuDirection direction() const;
+
+    QSize getMenuSize() const;
+
+    EMenuTabBar* takeTabBar();
+    EMenuAreaWidget* takeMenuAreaWidget();
+
+    void redockMenu(bool closed);
+    void updateFloatingState(bool floating);
+
+    void registerFloatingWidget(EMenuFloating* floatingWidget);
+
     static EProvider& provider();
 
 private:
     void loadStylesheet();
+    void setDefaultSize();
+    void setClosedSize();
+    bool menuVisible();
 
 private Q_SLOTS:
-    void onUndockButtonClicked();
-    void onDockButtonClicked();
     void onMenuDragFinished();
     void onToolClosed();
     void onToolSelected(int index);

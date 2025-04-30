@@ -29,17 +29,19 @@
 #include "ed/dockmenu/ed_menu_globals.h"
 
 namespace ed {
+class EMenuManager;
 
 class ED_EXPORT EMenuTitleBar : public QFrame {
     Q_OBJECT
 
 public:
-    explicit EMenuTitleBar(const QString& title, QWidget* parent = nullptr);
-    ~EMenuTitleBar();
+    explicit EMenuTitleBar(EMenuManager* manager, const QString& title, QWidget* parent = nullptr);
+    ~EMenuTitleBar() override;
 
-Q_SIGNALS:
-    void undockClicked();
-    void dockClicked();
+    void updateState(bool floating);
+
+protected:
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private Q_SLOTS:
     void onUndockButtonClicked();

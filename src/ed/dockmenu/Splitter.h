@@ -62,7 +62,7 @@ class ESplitter : public QSplitter {
     Q_OBJECT
 public:
     ESplitter(Qt::Orientation orientation, QWidget* parent = nullptr);
-    ~ESplitter();
+    ~ESplitter() override;
 
 protected:
     QSplitterHandle* createHandle() override;

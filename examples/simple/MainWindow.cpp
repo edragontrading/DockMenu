@@ -25,13 +25,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     this->menuManager = new ed::EMenuManager(ed::MenuDirection::Left, this);
 
-    this->menuManager->addMenu("Terminal 11", ":/ed/icons/light/broadcast.svg", ":/ed/icons/dark/broadcast.svg",
-                               "Terminal 11", new QTextEdit("Menu Pane 1", this));
+    this->menuManager->addMenu("Terminal 1", ":/ed/icons/light/broadcast.svg", ":/ed/icons/dark/broadcast.svg",
+                               "Terminal 1", new QTextEdit("Menu Pane 1", this));
 
-    this->menuManager->addMenu("Terminal 22", ":/ed/icons/light/bookmark.svg", ":/ed/icons/dark/bookmark.svg",
-                               "Terminal", new QTextEdit("Menu Pane 2", this));
+    this->menuManager->addMenu("Terminal 2", ":/ed/icons/light/bookmark.svg", ":/ed/icons/dark/bookmark.svg",
+                               "Terminal 2", new QTextEdit("Menu Pane 2", this));
 
-    this->menuManager->addMenu("Terminal 33", ":/ed/icons/light/bug.svg", ":/ed/icons/dark/bug.svg", "Terminal 33",
+    this->menuManager->addMenu("Terminal 3", ":/ed/icons/light/bug.svg", ":/ed/icons/dark/bug.svg", "Terminal 3",
                                new QTextEdit("Menu Pane 3", this));
 
     this->menuManager->setCentralWidget(new QPlainTextEdit("Central Widget", this));

@@ -43,6 +43,7 @@
 #define ED_EXPORT
 #endif
 
+#define ED_DEBUG_PRINT
 #ifdef ED_DEBUG_PRINT
 #define ED_PRINT(s) qDebug() << s
 #else
@@ -83,6 +84,15 @@ enum eColor {
     ColorCount,  //!< just a delimiter for range checks
 };
 Q_ENUM_NS(eColor);
+
+/**
+ * The different dragging states
+ */
+enum eDragState {
+    DraggingInactive,       //!< DraggingInactive
+    DraggingMousePressed,   //!< DraggingMousePressed
+    DraggingFloatingWidget  //!< DraggingFloatingWidget
+};
 
 namespace internal {
 /**

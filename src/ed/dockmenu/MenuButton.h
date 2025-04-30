@@ -40,7 +40,7 @@ private:
 public:
     explicit EMenuButton(MenuDirection direction, const QSize& iconSize, const QString& normalIcon,
                          const QString& checkedIcon, const QString& tooltipText, QWidget* parent = nullptr);
-    ~EMenuButton();
+    ~EMenuButton() override;
 
     void setUpdated();
 

@@ -1,5 +1,5 @@
-#ifndef ED_DOCKMENU_TOOLTIP_H
-#define ED_DOCKMENU_TOOLTIP_H
+#ifndef ED_DOCKMENU_FLOATING_H
+#define ED_DOCKMENU_FLOATING_H
 
 /*******************************************************************************
 ** Qt Dock Menu System
@@ -26,31 +26,35 @@
 
 #include <QWidget>
 
-#include "ed/dockmenu/Triangle.h"
 #include "ed/dockmenu/ed_menu_globals.h"
 
 namespace ed {
 
-class ED_EXPORT ETooltip : public QWidget {
+class EMenuManager;
+
+class ED_EXPORT EMenuFloating : public QWidget {
     Q_OBJECT
+
+public:
+    explicit EMenuFloating(EMenuManager* menuManager);
+    ~EMenuFloating() override;
+
+    void startFloating(const QPoint& dragStartMousePos, const QSize& size, eDragState dragState);
+    void moveFloating();
+
+    void removeMenuWidget();
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
+
+private Q_SLOTS:
+    void onToolSelected(int index);
+    void onToolClosed();
 
 private:
     struct Private;
     Private* d;
-
-public:
-    explicit ETooltip(MenuDirection direct, QWidget* parent = nullptr);
-    ~ETooltip() override;
-
-    // Show the tooltip at a global screen position
-    void showText(const QPoint& globalPos, const QString& text);
-    void showTooltip(const QPoint& globalPos);
-
-    void setToolTipText(const QString& text);
-
-private:
-    ETriangle::Type getDirection(MenuDirection direct) const;
 };
 }  // namespace ed
 
-#endif  // ED_DOCKMENU_TOOLTIP_H
+#endif  // ED_DOCKMENU_FLOATING_H

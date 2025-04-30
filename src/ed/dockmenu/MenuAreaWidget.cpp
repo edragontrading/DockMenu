@@ -65,6 +65,7 @@ EMenuAreaWidget::EMenuAreaWidget(MenuDirection direction, QWidget* parent) : QWi
 }
 
 EMenuAreaWidget::~EMenuAreaWidget() {
+    ED_PRINT("EMenuAreaWidget::~EMenuAreaWidget");
     delete d;
 }
 
@@ -79,5 +80,14 @@ void EMenuAreaWidget::toolSelected(int index) {
 
 int EMenuAreaWidget::getCurrentIndex() const {
     return d->currentIndex;
+}
+
+void EMenuAreaWidget::updateState(bool floating) {
+    for (int idx = 0; idx < d->stackedWidget->count(); ++idx) {
+        EMenuWidget* widget = qobject_cast<EMenuWidget*>(d->stackedWidget->widget(idx));
+        if (widget) {
+            widget->updateState(floating);
+        }
+    }
 }
 }  // namespace ed

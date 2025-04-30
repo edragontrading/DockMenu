@@ -42,6 +42,7 @@ public:
     Q_ENUM(Type);
 
     explicit ETriangle(Type type, QSize size, QWidget* parent = nullptr);
+    ~ETriangle() override;
 
 protected:
     void paintEvent(QPaintEvent* event) override;

@@ -35,7 +35,7 @@ struct EMenuWidget::Private {
     EMenuTitleBar* titleBar;
 };
 
-EMenuWidget::EMenuWidget(const QString& name, QWidget* widget, QWidget* parent)
+EMenuWidget::EMenuWidget(EMenuManager* manager, const QString& name, QWidget* widget, QWidget* parent)
     : QScrollArea(parent), d(new Private()) {
     setWidgetResizable(true);
     setFrameShape(QFrame::NoFrame);
@@ -47,24 +47,19 @@ EMenuWidget::EMenuWidget(const QString& name, QWidget* widget, QWidget* parent)
     d->layout->setContentsMargins(0, 0, 0, 0);
     d->layout->setSpacing(0);
 
-    d->titleBar = new EMenuTitleBar(name, this);
-    connect(d->titleBar, &EMenuTitleBar::undockClicked, this, &EMenuWidget::onUndockButtonClicked);
-    connect(d->titleBar, &EMenuTitleBar::dockClicked, this, &EMenuWidget::onDockButtonClicked);
+    d->titleBar = new EMenuTitleBar(manager, name, this);
 
     d->layout->addWidget(d->titleBar);
     d->layout->addWidget(widget, 1);
 }
 
+void EMenuWidget::updateState(bool floating) {
+    d->titleBar->updateState(floating);
+}
+
 EMenuWidget::~EMenuWidget() {
+    ED_PRINT("EMenuWidget::~EMenuWidget");
     delete d;
-}
-
-void EMenuWidget::onUndockButtonClicked() {
-    Q_EMIT undockClicked();
-}
-
-void EMenuWidget::onDockButtonClicked() {
-    Q_EMIT dockClicked();
 }
 
 }  // namespace ed

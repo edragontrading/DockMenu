@@ -37,7 +37,7 @@ class ED_EXPORT EMenuTabBar : public QScrollArea {
 
 public:
     explicit EMenuTabBar(MenuDirection direction, QWidget* parent = nullptr);
-    ~EMenuTabBar();
+    ~EMenuTabBar() override;
 
     void setSize(int size);
     void setClose();

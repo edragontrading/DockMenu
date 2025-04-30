@@ -48,12 +48,12 @@ EMenuTabBar::EMenuTabBar(MenuDirection direction, QWidget* parent) : QScrollArea
         setFixedWidth(50);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
         d->layout = new QBoxLayout(QBoxLayout::TopToBottom, this);
-        d->layout->setAlignment(Qt::AlignTop);
+        d->layout->setAlignment(Qt::AlignTop | Qt::AlignVCenter);
     } else {
         setFixedHeight(50);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         d->layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
-        d->layout->setAlignment(Qt::AlignLeft);
+        d->layout->setAlignment(Qt::AlignLeft | Qt::AlignHCenter);
     }
 
     d->layout->setSpacing(2);
@@ -61,6 +61,7 @@ EMenuTabBar::EMenuTabBar(MenuDirection direction, QWidget* parent) : QScrollArea
 }
 
 EMenuTabBar::~EMenuTabBar() {
+    ED_PRINT("EMenuTabBar::~EMenuTabBar");
     delete d;
 }
 

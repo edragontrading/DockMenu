@@ -22,11 +22,6 @@
         qproperty-iconSize: 16px;
 }
 
-#EMenuDetachMenuButton:hover {
-        background-color: #e4e4e8;
-        border-left: 4px solid #01060b; /* Add border-left on hover */
-}
-
 #EMenuTitleBar {
 	background: #3498db;
         min-height: 25px;
@@ -37,7 +32,8 @@
 QToolButton#EMenuButton {
         border: none;
         background: transparent;
-        min-height: 50px;
+        min-height: 48px;
+        min-width: 48px;
 }
 
 QLabel#ETooltip {
@@ -52,10 +48,10 @@ QLabel#ETooltip {
 
 #EMenuTabBar {
         background: #3498db;
-        min-height: 25px;
+        min-height: 48px;
+        min-width: 48px;
         border: 1px solid #3C3C3C;
         border-radius: 1px;
-        padding-top: 20px;
 }
 
 #EMenuAreaWidget {

@@ -37,11 +37,13 @@ class ED_EXPORT EMenuAreaWidget : public QWidget {
 
 public:
     explicit EMenuAreaWidget(MenuDirection direction, QWidget* parent = nullptr);
-    ~EMenuAreaWidget();
+    ~EMenuAreaWidget() override;
 
     void addMenuWidget(EMenuWidget* widget);
 
     int getCurrentIndex() const;
+
+    void updateState(bool floating);
 
 public Q_SLOTS:
     void toolSelected(int index);

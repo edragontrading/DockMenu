@@ -25,9 +25,12 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QStyle>
 #include <QToolButton>
 
+#include "ed/dockmenu/MenuFloating.h"
+#include "ed/dockmenu/MenuManager.h"
 #include "ed/dockmenu/MenuTitleBar_p.h"
 
 namespace ed {
@@ -35,17 +38,24 @@ namespace ed {
 struct EMenuTitleBar::Private {
     Private() = default;
 
+    bool floating;
     QLabel* title;
     QBoxLayout* layout;
     QToolButton* undockButton;
     QToolButton* dockButton;
+
+    EMenuManager* menuManager;
 };
 
-EMenuTitleBar::EMenuTitleBar(const QString& title, QWidget* parent) : QFrame(parent), d(new Private()) {
+EMenuTitleBar::EMenuTitleBar(EMenuManager* manager, const QString& title, QWidget* parent)
+    : QFrame(parent), d(new Private()) {
     setFrameShape(QFrame::NoFrame);
     setFocusPolicy(Qt::NoFocus);
 
     setObjectName("EMenuTitleBar");
+
+    d->floating = false;
+    d->menuManager = manager;
 
     d->layout = new QBoxLayout(QBoxLayout::LeftToRight);
     d->layout->setContentsMargins(0, 0, 0, 0);
@@ -89,12 +99,41 @@ EMenuTitleBar::~EMenuTitleBar() {
     delete d;
 }
 
+void EMenuTitleBar::updateState(bool floating) {
+    d->floating = floating;
+    if (floating) {
+        d->undockButton->setVisible(false);
+        d->dockButton->setVisible(true);
+    } else {
+        d->dockButton->setVisible(false);
+        d->undockButton->setVisible(true);
+    }
+}
+
+void EMenuTitleBar::mouseDoubleClickEvent(QMouseEvent* event) {
+    if (d->floating) {
+        return;
+    }
+
+    if (event->button() == Qt::LeftButton) {
+        QSize size = d->menuManager->getMenuSize();
+        QPoint point = event->pos();
+
+        EMenuFloating* floating = new EMenuFloating(d->menuManager);
+        floating->startFloating(point, size, DraggingInactive);
+    }
+}
+
 void EMenuTitleBar::onUndockButtonClicked() {
-    Q_EMIT undockClicked();
+    QSize size = d->menuManager->getMenuSize();
+    QPoint point = this->mapFromGlobal(QCursor::pos());
+
+    EMenuFloating* floating = new EMenuFloating(d->menuManager);
+    floating->startFloating(point, size, DraggingInactive);
 }
 
 void EMenuTitleBar::onDockButtonClicked() {
-    Q_EMIT dockClicked();
+    d->menuManager->redockMenu(false);
 }
 
 ESpacerWidget::ESpacerWidget(QWidget* Parent /*= nullptr*/) : Super(Parent) {
