@@ -29,6 +29,11 @@
         border: 1px solid #3C3C3C;
 }
 
+
+ed--EMenuButton {
+        qproperty-colorHighlight: rgb(201, 14, 218);
+}
+
 QToolButton#EMenuButton {
         border: none;
         background: transparent;
@@ -36,14 +41,22 @@ QToolButton#EMenuButton {
         min-width: 48px;
 }
 
+ed--ESplitterHandle {
+        qproperty-handleColor: rgb(14, 129, 218);
+}
+
+ed--ETooltip {
+        qproperty-iconArrowColor: rgb(14, 129, 218);
+}
+
 QLabel#ETooltip {
-        background-color: hsl(203, 48.10%, 94.70%);
+        background-color: #ccced0;
         border-radius: 2px;
         padding: 4px;
-        border: 1px solid #3498db;
-        font-size: large;
+        border: 1px solid #0465a6;
+        font-size: xx-large;
         font-weight: normal;
-        color: black;
+        color: rgb(21, 16, 16);
 }
 
 #EMenuTabBar {

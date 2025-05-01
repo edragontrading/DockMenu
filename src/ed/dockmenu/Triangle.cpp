@@ -28,24 +28,32 @@
 
 namespace ed {
 
-ETriangle::ETriangle(ETriangle::Type type, QSize size, QWidget* parent) : QWidget(parent) {
-    m_type = type;
+struct ETriangle::Private {
+    Private() = default;
+
+    Type m_type;
+    QColor m_color;
+};
+
+ETriangle::ETriangle(ETriangle::Type type, QSize size, QWidget* parent) : QWidget(parent), d(new Private) {
+    d->m_type = type;
     setFixedSize(size);  // Adjust for triangle size
 
-    m_color = internal::getCustomColor(eColor::TooltipArrowColor);
-    if (!m_color.isValid()) {
-        m_color = QColor(0x3498db);  // Default color
+    d->m_color = internal::getCustomColor(eColor::TooltipArrowColor);
+    if (!d->m_color.isValid()) {
+        d->m_color = QColor(0x3498db);  // Default color
     }
 }
 
 ETriangle::~ETriangle() {
+    delete d;
 }
 
 void ETriangle::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     QPolygon triangle;
 
-    switch (m_type) {
+    switch (d->m_type) {
         case Left:
             triangle << QPoint(width(), 0) << QPoint(width(), height()) << QPoint(0, height() / 2);
             break;
@@ -63,10 +71,18 @@ void ETriangle::paintEvent(QPaintEvent*) {
     }
 
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setBrush(m_color);
+    painter.setBrush(d->m_color);
     painter.setPen(Qt::NoPen);
     painter.drawPolygon(triangle);
     painter.end();
+}
+
+QColor ETriangle::iconColor() const {
+    return d->m_color;
+}
+
+void ETriangle::setIconColor(const QColor& Color) {
+    d->m_color = Color;
 }
 
 }  // namespace ed

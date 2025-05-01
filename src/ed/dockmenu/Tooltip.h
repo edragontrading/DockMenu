@@ -33,6 +33,7 @@ namespace ed {
 
 class ED_EXPORT ETooltip : public QWidget {
     Q_OBJECT
+    Q_PROPERTY(QColor iconArrowColor READ iconArrowColor WRITE setIconArrowColor)
 
 private:
     struct Private;
@@ -47,6 +48,10 @@ public:
     void showTooltip(const QPoint& globalPos);
 
     void setToolTipText(const QString& text);
+
+protected:
+    QColor iconArrowColor() const;
+    void setIconArrowColor(const QColor& Color);
 
 private:
     ETriangle::Type getDirection(MenuDirection direct) const;

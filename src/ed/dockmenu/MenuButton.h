@@ -32,6 +32,7 @@ namespace ed {
 
 class ED_EXPORT EMenuButton : public QToolButton {
     Q_OBJECT
+    Q_PROPERTY(QColor colorHighlight READ colorHighlight WRITE setColorHighlight)
 
 private:
     struct Private;
@@ -43,6 +44,10 @@ public:
     ~EMenuButton() override;
 
     void setUpdated();
+
+protected:
+    QColor colorHighlight() const;
+    void setColorHighlight(const QColor& Color);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

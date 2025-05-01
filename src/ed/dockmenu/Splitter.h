@@ -35,6 +35,8 @@ namespace ed {
 
 class ESplitterHandle : public QSplitterHandle {
     Q_OBJECT
+    Q_PROPERTY(QColor handleColor READ handleColor WRITE setHandleColor)
+
 public:
     ESplitterHandle(Qt::Orientation orientation, QSplitter* parent);
     ~ESplitterHandle();
@@ -53,13 +55,18 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
+protected:
+    QColor handleColor() const;
+    void setHandleColor(const QColor& Color);
+
 private:
-    bool m_mousePressed = false;
-    bool m_hover = false;
+    struct Private;
+    Private* d;
 };
 
 class ESplitter : public QSplitter {
     Q_OBJECT
+
 public:
     ESplitter(Qt::Orientation orientation, QWidget* parent = nullptr);
     ~ESplitter() override;

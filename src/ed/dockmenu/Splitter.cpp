@@ -30,23 +30,44 @@
 
 namespace ed {
 
+struct ESplitterHandle::Private {
+    Private() = default;
+
+    bool m_mousePressed = false;
+    bool m_hover = false;
+    QColor m_color;
+};
+
 ESplitterHandle::ESplitterHandle(Qt::Orientation orientation, QSplitter* parent)
-    : QSplitterHandle(orientation, parent), m_hover(false) {
+    : QSplitterHandle(orientation, parent), d(new Private) {
     setMouseTracking(true);
+    d->m_color = internal::getCustomColor(ed::eColor::QSplitterHandleColor);
+    if (!d->m_color.isValid()) {
+        d->m_color = QColor(0x3498db);
+    }
 }
 
 ESplitterHandle::~ESplitterHandle() {
     ED_PRINT("ESplitterHandle::~ESplitterHandle()");
+    delete d;
 }
 
 QSize ESplitterHandle::sizeHint() const {
-    return m_hover ? (orientation() == Qt::Horizontal ? QSize(4, 0) : QSize(0, 4))
-                   : (orientation() == Qt::Horizontal ? QSize(1, 0) : QSize(0, 1));
+    return d->m_hover ? (orientation() == Qt::Horizontal ? QSize(4, 0) : QSize(0, 4))
+                      : (orientation() == Qt::Horizontal ? QSize(1, 0) : QSize(0, 1));
+}
+
+QColor ESplitterHandle::handleColor() const {
+    return d->m_color;
+}
+
+void ESplitterHandle::setHandleColor(const QColor& Color) {
+    d->m_color = Color;
 }
 
 bool ESplitterHandle::setVisibleOnHover(bool hover) {
-    if (m_hover != hover) {
-        m_hover = hover;
+    if (d->m_hover != hover) {
+        d->m_hover = hover;
         updateGeometry();  // Important: tell layout to re-calculate size
         update();          // Repaint
 
@@ -57,23 +78,23 @@ bool ESplitterHandle::setVisibleOnHover(bool hover) {
 }
 
 bool ESplitterHandle::hovered() {
-    return m_hover;
+    return d->m_hover;
 }
 
 bool ESplitterHandle::mousePressed() {
-    return m_mousePressed;
+    return d->m_mousePressed;
 }
 
 void ESplitterHandle::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        m_mousePressed = true;
+        d->m_mousePressed = true;
     }
     QSplitterHandle::mousePressEvent(event);
 }
 
 void ESplitterHandle::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        m_mousePressed = false;
+        d->m_mousePressed = false;
         Q_EMIT dragFinished();
     }
     QSplitterHandle::mouseReleaseEvent(event);
@@ -81,12 +102,8 @@ void ESplitterHandle::mouseReleaseEvent(QMouseEvent* event) {
 
 void ESplitterHandle::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
-    if (m_hover) {
-        QColor color = internal::getCustomColor(ed::eColor::QSplitterHandleColor);
-        if (!color.isValid()) {
-            color = QColor(0x3498db);
-        }
-        painter.fillRect(rect(), color);
+    if (d->m_hover) {
+        painter.fillRect(rect(), d->m_color);
     }
 }
 

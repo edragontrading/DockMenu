@@ -74,6 +74,14 @@ EMenuButton::~EMenuButton() {
     delete d;
 }
 
+QColor EMenuButton::colorHighlight() const {
+    return d->colorHighlight;
+}
+
+void EMenuButton::setColorHighlight(const QColor& Color) {
+    d->colorHighlight = Color;
+}
+
 void EMenuButton::setUpdated() {
     d->updated = true;
     update();

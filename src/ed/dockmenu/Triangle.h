@@ -44,12 +44,15 @@ public:
     explicit ETriangle(Type type, QSize size, QWidget* parent = nullptr);
     ~ETriangle() override;
 
+    QColor iconColor() const;
+    void setIconColor(const QColor& Color);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
-    Type m_type;
-    QColor m_color;
+    struct Private;
+    Private* d;
 };
 
 }  // namespace ed

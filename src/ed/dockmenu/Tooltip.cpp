@@ -106,4 +106,12 @@ ETriangle::Type ETooltip::getDirection(MenuDirection direct) const {
     }
 }
 
+QColor ETooltip::iconArrowColor() const {
+    return d->triangleWidget->iconColor();
+}
+
+void ETooltip::setIconArrowColor(const QColor& Color) {
+    d->triangleWidget->setIconColor(Color);
+}
+
 }  // namespace ed
