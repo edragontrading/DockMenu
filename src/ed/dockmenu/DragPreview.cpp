@@ -47,13 +47,13 @@ struct EDragPreview::Private {
 
 EDragPreview::EDragPreview(EMenuManager* menuManager, QWidget* parent) : QWidget(parent), d(new Private) {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_NoSystemBackground);
     setAttribute(Qt::WA_TranslucentBackground);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     auto Flags = windowFlags();
-    Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
+    Flags |= Qt::X11BypassWindowManagerHint;
     setWindowFlags(Flags);
 #endif
 

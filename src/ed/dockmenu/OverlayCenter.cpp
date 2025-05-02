@@ -380,6 +380,7 @@ QPixmap EOverlayCenter::createHighDpiDropIndicatorPixmap(const QSizeF& size, Men
     p.restore();
 
     // Draw outer border
+    p.save();
     pen = p.pen();
     pen.setColor(borderColor);
     pen.setWidth(1);
