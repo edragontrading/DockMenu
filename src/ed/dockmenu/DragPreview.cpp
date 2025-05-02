@@ -23,11 +23,14 @@
 
 #include "ed/dockmenu/DragPreview.h"
 
+#include <QHBoxLayout>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QPainter>
 #include <QPixmap>
 #include <QPoint>
 #include <QScreen>
+#include <QWindow>
 
 #include "ed/dockmenu/MenuFloating.h"
 #include "ed/dockmenu/MenuManager.h"
@@ -39,6 +42,9 @@ struct EDragPreview::Private {
     Private() = default;
 
     bool dragCanceled;
+
+    QLabel* label;
+    QHBoxLayout* layout;
 
     EMenuManager* menuManager;
     QPixmap contentPreviewPixmap;
@@ -61,6 +67,16 @@ EDragPreview::EDragPreview(EMenuManager* menuManager, QWidget* parent) : QWidget
     d->dragCanceled = false;
     d->contentPreviewPixmap = menuManager->captureMenuWidgets();
 
+    d->layout = new QHBoxLayout(this);
+    d->layout->setContentsMargins(0, 0, 0, 0);
+    d->layout->setSpacing(0);
+
+    d->label = new QLabel(this);
+    d->label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    d->layout->addWidget(d->label, 1);
+    setLayout(d->layout);
+
     connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
             SLOT(onApplicationStateChanged(Qt::ApplicationState)));
 
@@ -77,13 +93,14 @@ EDragPreview::~EDragPreview() {
 void EDragPreview::startFloating(const QPoint& dragStartMousePos, const QSize& size) {
     QScreen* screen = this->screen();
     QSize screenSize = screen->geometry().size();
-    QSize reSize = QSize(qMin(size.width(), (int)(screenSize.width() * 0.85)),
-                         qMin(size.height(), (int)(screenSize.height() * 0.85)));
+    QSizeF reSize = QSizeF(qMin((double)size.width(), screenSize.width() * 0.8),
+                           qMin((double)size.height(), screenSize.height() * 0.8));
 
     d->contentPreviewPixmap =
         d->contentPreviewPixmap.scaled(reSize.width(), reSize.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    d->label->setPixmap(d->contentPreviewPixmap);
 
-    resize(reSize);
+    adjustSize();
     d->dragStartMousePosition = dragStartMousePos;
     moveFloating();
     show();
@@ -144,14 +161,6 @@ void EDragPreview::onApplicationStateChanged(Qt::ApplicationState state) {
                    SLOT(onApplicationStateChanged(Qt::ApplicationState)));
         this->cancelDragging();
     }
-}
-
-void EDragPreview::paintEvent(QPaintEvent* event) {
-    Q_UNUSED(event);
-
-    QPainter painter(this);
-    painter.setOpacity(0.6);
-    painter.drawPixmap(QPoint(0, 0), d->contentPreviewPixmap);
 }
 
 void EDragPreview::updateDropOverlays(const QPoint& globalPos) {

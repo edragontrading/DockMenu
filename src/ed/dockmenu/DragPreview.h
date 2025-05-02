@@ -72,12 +72,6 @@ private Q_SLOTS:
      */
     void onApplicationStateChanged(Qt::ApplicationState state);
 
-protected:
-    /**
-     * Cares about painting the
-     */
-    void paintEvent(QPaintEvent* e) override;
-
 private:
     void cancelDragging();
     void updateDropOverlays(const QPoint& globalPos);
