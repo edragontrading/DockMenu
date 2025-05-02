@@ -25,6 +25,8 @@
         "initializer_list": "cpp",
         "span": "cpp",
         "utility": "cpp",
-        "qmainwindow": "cpp"
+        "qmainwindow": "cpp",
+        "qicon": "cpp",
+        "functional": "cpp"
     }
 }

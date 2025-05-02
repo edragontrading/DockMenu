@@ -31,6 +31,7 @@
 
 #include "ed/dockmenu/MenuFloating.h"
 #include "ed/dockmenu/MenuManager.h"
+#include "ed/dockmenu/MenuOverlay.h"
 
 namespace ed {
 
@@ -92,19 +93,29 @@ void EDragPreview::moveFloating() {
     int borderSize = (frameSize().width() - size().width()) / 2;
     const QPoint moveToPos = QCursor::pos() - d->dragStartMousePosition - QPoint(borderSize, 0);
     move(moveToPos);
-    // d->updateDropOverlays(QCursor::pos());
+
+    if (d->menuManager->floating()) {
+        this->updateDropOverlays(QCursor::pos());
+    }
 }
 
 void EDragPreview::finishDragging() {
-    ED_PRINT("EDragPreview::finishDragging");
-
     QSize size = d->menuManager->getMenuSize();
     QPoint point = this->mapFromGlobal(QCursor::pos());
 
+    this->close();
+    if (d->menuManager->floating()) {
+        auto dropArea = d->menuManager->menuOverlay()->dropAreaUnderCursor();
+        d->menuManager->menuOverlay()->hideOverlay();
+
+        if (dropArea != InvalidMenuWidgetArea) {
+            d->menuManager->redockMenu(false);
+            return;
+        }
+    }
+
     EMenuFloating* floating = new EMenuFloating(d->menuManager);
     floating->startFloating(point, size, DraggingInactive);
-
-    this->close();
 }
 
 bool EDragPreview::eventFilter(QObject* watched, QEvent* event) {
@@ -123,6 +134,7 @@ void EDragPreview::cancelDragging() {
     d->dragCanceled = true;
     Q_EMIT draggingCanceled();
 
+    d->menuManager->menuOverlay()->hideOverlay();
     this->close();
 }
 
@@ -140,6 +152,32 @@ void EDragPreview::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setOpacity(0.6);
     painter.drawPixmap(QPoint(0, 0), d->contentPreviewPixmap);
+}
+
+void EDragPreview::updateDropOverlays(const QPoint& globalPos) {
+    if (!this->isVisible() || !d->menuManager->floating()) {
+        return;
+    }
+
+    bool inMenuArea = false;
+    QPoint mappedPos = d->menuManager->mapFromGlobal(globalPos);
+    if (d->menuManager->rect().contains(mappedPos)) {
+        inMenuArea = true;
+    }
+
+    if (!inMenuArea) {
+        d->menuManager->menuOverlay()->hideOverlay();
+        setHidden(false);
+        return;
+    }
+    auto dropArea = d->menuManager->menuOverlay()->dropAreaUnderCursor();
+    if (dropArea != InvalidMenuWidgetArea) {
+        d->menuManager->menuOverlay()->enableDropPreview(true);
+    } else {
+        d->menuManager->menuOverlay()->enableDropPreview(false);
+    }
+
+    d->menuManager->menuOverlay()->showOverlay(d->menuManager);
 }
 
 }  // namespace ed

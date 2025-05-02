@@ -35,6 +35,8 @@ set(DOCK_MENU_SRCS
     ed/dockmenu/MenuFloating.cpp
     ed/dockmenu/MenuWidget.cpp
     ed/dockmenu/DragPreview.cpp
+    ed/dockmenu/OverlayCenter.cpp
+    ed/dockmenu/MenuOverlay.cpp
     ed/dockmenu/MouseTracker.cpp
     ed/dockmenu/SlidingStacked.cpp
     ed/dockmenu/Splitter.cpp
@@ -52,6 +54,8 @@ set(DOCK_MENU_HEADERS
     ed/dockmenu/MenuTitleBar.h
     ed/dockmenu/MenuWidget.h
     ed/dockmenu/DragPreview.h
+    ed/dockmenu/OverlayCenter.h
+    ed/dockmenu/MenuOverlay.h
     ed/dockmenu/MenuFloating.h
     ed/dockmenu/MouseTracker.h
     ed/dockmenu/SlidingStacked.h

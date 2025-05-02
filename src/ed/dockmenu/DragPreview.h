@@ -66,9 +66,6 @@ Q_SIGNALS:
      */
     void draggingCanceled();
 
-private:
-    void cancelDragging();
-
 private Q_SLOTS:
     /**
      * Cancel non opaque undocking if application becomes inactive
@@ -80,6 +77,10 @@ protected:
      * Cares about painting the
      */
     void paintEvent(QPaintEvent* e) override;
+
+private:
+    void cancelDragging();
+    void updateDropOverlays(const QPoint& globalPos);
 
 private:
     struct Private;

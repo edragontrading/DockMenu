@@ -66,6 +66,15 @@ enum MenuDirection {
 };
 Q_ENUM_NS(MenuDirection);
 
+enum MenuWidgetArea {
+    NoMenuWidgetArea = 0x00,
+    CenterMenuWidgetArea = 0x01,
+
+    InvalidMenuWidgetArea = NoMenuWidgetArea,
+    AllMenuAreas = CenterMenuWidgetArea
+};
+Q_DECLARE_FLAGS(MenuWidgetAreas, MenuWidgetArea)
+
 /**
  * The different icons used in the UI
  */

@@ -100,7 +100,6 @@ EMenuTitleBar::EMenuTitleBar(EMenuManager* manager, const QString& title, QWidge
     d->title->setContentsMargins(0, 0, 0, 0);
 
     d->layout->insertWidget(0, d->title, 1);
-    // d->layout->insertWidget(1 ,new ESpacerWidget(this));
 }
 
 EMenuTitleBar::~EMenuTitleBar() {

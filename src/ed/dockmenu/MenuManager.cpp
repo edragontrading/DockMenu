@@ -33,6 +33,7 @@
 #include "ed/dockmenu/MenuAreaWidget.h"
 #include "ed/dockmenu/MenuButton.h"
 #include "ed/dockmenu/MenuFloating.h"
+#include "ed/dockmenu/MenuOverlay.h"
 #include "ed/dockmenu/MenuTabBar.h"
 #include "ed/dockmenu/MenuWidget.h"
 #include "ed/dockmenu/Provider.h"
@@ -60,11 +61,14 @@ struct EMenuManager::Private {
     MenuDirection direction;
     bool toolClosed;
     bool splitterReady;
+    bool floating;
 
     QBoxLayout *layout;
     EMenuTabBar *styleBar;
     ESplitter *splitter;
     QList<int> splitterState;
+
+    EMenuOverlay *menuOverlay;
     EMenuAreaWidget *menuArea;
     EMenuFloating *floatingWidget = nullptr;
 };
@@ -76,10 +80,12 @@ EMenuManager::EMenuManager(MenuDirection direction, QWidget *parent) : QFrame(pa
 
     d->toolClosed = true;
     d->splitterReady = false;
+    d->floating = false;
     d->direction = direction;
     d->splitterState = QList<int>();
     d->styleBar = new EMenuTabBar(direction, this);
     d->menuArea = new EMenuAreaWidget(direction, this);
+    d->menuOverlay = new EMenuOverlay(this);
 
     connect(d->styleBar, &EMenuTabBar::toolSelected, this, &EMenuManager::onToolSelected);
     connect(d->styleBar, &EMenuTabBar::toolClosed, this, &EMenuManager::onToolClosed);
@@ -194,6 +200,10 @@ EMenuAreaWidget *EMenuManager::takeMenuAreaWidget() {
     return d->menuArea;
 }
 
+EMenuOverlay *EMenuManager::menuOverlay() const {
+    return d->menuOverlay;
+}
+
 void EMenuManager::registerFloatingWidget(EMenuFloating *floatingWidget) {
     if (d->floatingWidget != nullptr) {
         d->floatingWidget->removeMenuWidget();
@@ -246,7 +256,12 @@ void EMenuManager::redockMenu(bool closed) {
 }
 
 void EMenuManager::updateFloatingState(bool floating) {
+    d->floating = floating;
     d->menuArea->updateState(floating);
+}
+
+bool EMenuManager::floating() const {
+    return d->floating;
 }
 
 QSize EMenuManager::getMenuSize() const {

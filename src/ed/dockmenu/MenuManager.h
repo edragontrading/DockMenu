@@ -33,6 +33,7 @@ namespace ed {
 
 class EProvider;
 class EMenuTabBar;
+class EMenuOverlay;
 class EMenuAreaWidget;
 class EMenuFloating;
 
@@ -49,10 +50,14 @@ public:
 
     MenuDirection direction() const;
 
+    bool floating() const;
+
     QSize getMenuSize() const;
 
     EMenuTabBar* takeTabBar();
     EMenuAreaWidget* takeMenuAreaWidget();
+
+    EMenuOverlay* menuOverlay() const;
 
     void redockMenu(bool closed);
     void updateFloatingState(bool floating);
