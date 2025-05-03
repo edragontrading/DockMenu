@@ -47,6 +47,22 @@ public:
 protected:
     void closeEvent(QCloseEvent* event) override;
 
+#ifdef Q_OS_WIN
+    /**
+     * Native event filter for handling WM_MOVING messages on Windows
+     */
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    virtual bool nativeEvent(const QByteArray& eventType, void* message, long* result) override;
+#else
+    virtual bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
+#endif
+#endif
+
+private:
+    void titleMouseReleaseEvent();
+    void handleEscapeKey();
+    void updateDropOverlays(const QPoint& globalPos);
+
 private Q_SLOTS:
     void onToolSelected(int index);
     void onToolClosed();

@@ -27,8 +27,16 @@
 #include <QBoxLayout>
 #include <QCloseEvent>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "User32.lib")
+#endif
+#endif
+
 #include "ed/dockmenu/MenuAreaWidget.h"
 #include "ed/dockmenu/MenuManager.h"
+#include "ed/dockmenu/MenuOverlay.h"
 #include "ed/dockmenu/MenuTabBar.h"
 
 namespace ed {
@@ -41,6 +49,7 @@ struct EMenuFloating::Private {
 
     eDragState draggingState = DraggingInactive;
     QPoint dragStartMousePosition;
+    QPoint dragStartPos;
 
     bool isClosing;
 };
@@ -167,6 +176,98 @@ void EMenuFloating::moveFloating() {
         default:
             break;
     }
+}
+
+#ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+bool EMenuFloating::nativeEvent(const QByteArray& eventType, void* message, long* result)
+#else
+bool EMenuFloating::nativeEvent(const QByteArray& eventType, void* message, qintptr* result)
+#endif
+{
+    QWidget::nativeEvent(eventType, message, result);
+    MSG* msg = static_cast<MSG*>(message);
+    switch (msg->message) {
+        case WM_MOVING: {
+            if (d->draggingState == DraggingFloatingWidget) {
+                this->updateDropOverlays(QCursor::pos());
+            }
+        } break;
+
+        case WM_NCLBUTTONDOWN:
+            if (msg->wParam == HTCAPTION && d->draggingState == DraggingInactive) {
+                d->dragStartPos = pos();
+                d->draggingState = DraggingMousePressed;
+            }
+            break;
+
+        case WM_NCLBUTTONDBLCLK:
+            d->draggingState = DraggingInactive;
+            break;
+
+        case WM_ENTERSIZEMOVE:
+            if (d->draggingState == DraggingMousePressed) {
+                d->draggingState = DraggingFloatingWidget;
+                this->updateDropOverlays(QCursor::pos());
+            }
+            break;
+
+        case WM_EXITSIZEMOVE:
+            if (d->draggingState == DraggingFloatingWidget) {
+                if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+                    this->handleEscapeKey();
+                } else {
+                    this->titleMouseReleaseEvent();
+                }
+            }
+            break;
+    }
+    return false;
+}
+#endif
+
+void EMenuFloating::titleMouseReleaseEvent() {
+    d->draggingState = DraggingInactive;
+
+    auto dropArea = d->menuManager->menuOverlay()->dropAreaUnderCursor();
+    d->menuManager->menuOverlay()->hideOverlay();
+
+    if (dropArea != InvalidMenuWidgetArea) {
+        QMetaObject::invokeMethod(
+            this, [this]() { this->d->menuManager->redockMenu(false); }, Qt::QueuedConnection);
+    }
+}
+
+void EMenuFloating::handleEscapeKey() {
+    ED_PRINT("EMenuFloating::handleEscapeKey()");
+    d->draggingState = DraggingInactive;
+    d->menuManager->menuOverlay()->hideOverlay();
+}
+
+void EMenuFloating::updateDropOverlays(const QPoint& globalPos) {
+    if (!this->isVisible() || !d->menuManager->floating()) {
+        return;
+    }
+
+    bool inMenuArea = false;
+    QPoint mappedPos = d->menuManager->mapFromGlobal(globalPos);
+    if (d->menuManager->rect().contains(mappedPos)) {
+        inMenuArea = true;
+    }
+
+    if (!inMenuArea) {
+        d->menuManager->menuOverlay()->hideOverlay();
+        setHidden(false);
+        return;
+    }
+    auto dropArea = d->menuManager->menuOverlay()->dropAreaUnderCursor();
+    if (dropArea != InvalidMenuWidgetArea) {
+        d->menuManager->menuOverlay()->enableDropPreview(true);
+    } else {
+        d->menuManager->menuOverlay()->enableDropPreview(false);
+    }
+
+    d->menuManager->menuOverlay()->showOverlay(d->menuManager);
 }
 
 }  // namespace ed
