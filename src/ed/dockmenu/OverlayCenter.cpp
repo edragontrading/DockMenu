@@ -45,7 +45,7 @@ EOverlayCenter::EOverlayCenter(EMenuOverlay* overlay) : QWidget(overlay->parentW
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 #else
-    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 #endif
     setWindowTitle("MenuOverlayCenter");
     setAttribute(Qt::WA_TranslucentBackground);
