@@ -244,7 +244,6 @@ bool EMenuFloating::event(QEvent* e) {
                 QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
 #endif
             {
-                ED_PRINT("EMenuFloating::event Event::NonClientAreaMouseButtonPress" << e->type());
                 d->dragStartPos = pos();
                 d->draggingState = DraggingMousePressed;
             }
@@ -253,7 +252,6 @@ bool EMenuFloating::event(QEvent* e) {
         case DraggingMousePressed:
             switch (e->type()) {
                 case QEvent::NonClientAreaMouseButtonDblClick:
-                    ED_PRINT("EMenuFloating::event QEvent::NonClientAreaMouseButtonDblClick");
                     d->draggingState = DraggingInactive;
                     break;
 
@@ -278,7 +276,6 @@ bool EMenuFloating::event(QEvent* e) {
 
         case DraggingFloatingWidget:
             if (e->type() == QEvent::NonClientAreaMouseButtonRelease) {
-                ED_PRINT("EMenuFloating::event QEvent::NonClientAreaMouseButtonRelease");
                 this->titleMouseReleaseEvent();
             }
             break;
@@ -286,8 +283,6 @@ bool EMenuFloating::event(QEvent* e) {
         default:
             break;
     }
-
-    ED_PRINT(QTime::currentTime() << "EMenuFloating::event " << e->type());
     return QWidget::event(e);
 }
 
