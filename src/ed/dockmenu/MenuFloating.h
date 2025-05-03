@@ -58,6 +58,11 @@ protected:
 #endif
 #endif
 
+#ifdef Q_OS_MACOS
+    virtual bool event(QEvent* e) override;
+    virtual void moveEvent(QMoveEvent* event) override;
+#endif
+
 private:
     void titleMouseReleaseEvent();
     void handleEscapeKey();

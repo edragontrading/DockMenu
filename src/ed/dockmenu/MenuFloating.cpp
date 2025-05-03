@@ -160,11 +160,9 @@ void EMenuFloating::moveFloating() {
     switch (d->draggingState) {
         case DraggingMousePressed:
             d->draggingState = DraggingFloatingWidget;
-            // d->updateDropOverlays(QCursor::pos());
             break;
 
         case DraggingFloatingWidget:
-            // d->updateDropOverlays(QCursor::pos());
 #ifdef Q_OS_MACOS
             // In OSX when hiding the MenuAreaOverlay the application would set
             // the main window as the active window for some reason. This fixes
@@ -223,6 +221,96 @@ bool EMenuFloating::nativeEvent(const QByteArray& eventType, void* message, qint
             break;
     }
     return false;
+}
+#endif
+
+#ifdef Q_OS_MACOS
+//============================================================================
+bool EMenuFloating::event(QEvent* e) {
+    switch (d->draggingState) {
+        case DraggingInactive: {
+            // Normally we would check here, if the left mouse button is pressed.
+            // But from QT version 5.12.2 on the mouse events from
+            // QEvent::NonClientAreaMouseButtonPress return the wrong mouse button
+            // The event always returns Qt::RightButton even if the left button
+            // is clicked.
+            // It is really great to work around the whole NonClientMouseArea
+            // bugs
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
+            if (e->type() ==
+                QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
+#else
+            if (e->type() == QEvent::NonClientAreaMouseButtonPress &&
+                QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
+#endif
+            {
+                ED_PRINT("EMenuFloating::event Event::NonClientAreaMouseButtonPress" << e->type());
+                d->dragStartPos = pos();
+                d->draggingState = DraggingMousePressed;
+            }
+        } break;
+
+        case DraggingMousePressed:
+            switch (e->type()) {
+                case QEvent::NonClientAreaMouseButtonDblClick:
+                    ED_PRINT("EMenuFloating::event QEvent::NonClientAreaMouseButtonDblClick");
+                    d->draggingState = DraggingInactive;
+                    break;
+
+                case QEvent::Resize:
+                    // If the first event after the mouse press is a resize event, then
+                    // the user resizes the window instead of dragging it around.
+                    // But there is one exception. If the window is maximized,
+                    // then dragging the window via title bar will cause the widget to
+                    // leave the maximized state. This in turn will trigger a resize event.
+                    // To know, if the resize event was triggered by user via moving a
+                    // corner of the window frame or if it was caused by a windows state
+                    // change, we check, if we are not in maximized state.
+                    if (!isMaximized()) {
+                        d->draggingState = DraggingInactive;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case DraggingFloatingWidget:
+            if (e->type() == QEvent::NonClientAreaMouseButtonRelease) {
+                ED_PRINT("EMenuFloating::event QEvent::NonClientAreaMouseButtonRelease");
+                this->titleMouseReleaseEvent();
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    ED_PRINT(QTime::currentTime() << "EMenuFloating::event " << e->type());
+    return QWidget::event(e);
+}
+
+//============================================================================
+void EMenuFloating::moveEvent(QMoveEvent* event) {
+    QWidget::moveEvent(event);
+    switch (d->draggingState) {
+        case DraggingMousePressed:
+            d->draggingState = DraggingFloatingWidget;
+            this->updateDropOverlays(QCursor::pos());
+            break;
+
+        case DraggingFloatingWidget:
+            this->updateDropOverlays(QCursor::pos());
+            // In OSX when hiding the DockAreaOverlay the application would set
+            // the main window as the active window for some reason. This fixes
+            // that by resetting the active window to the floating widget after
+            // updating the overlays.
+            activateWindow();
+            break;
+        default:
+            break;
+    }
 }
 #endif
 
