@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="/ed">
+    <file>icons/chrome-restore.svg</file>
+    <file>icons/terminal.svg</file>
+    <file>icons/light/bookmark.svg</file>
+    <file>icons/dark/bookmark.svg</file>
+    <file>icons/light/broadcast.svg</file>
+    <file>icons/dark/broadcast.svg</file>
+    <file>icons/light/bug.svg</file>
+    <file>icons/dark/bug.svg</file>
+  </qresource>
+</RCC>

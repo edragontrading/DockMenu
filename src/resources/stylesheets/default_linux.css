@@ -1,0 +1,74 @@
+/*
+ * Default style sheet on Linux Platforms
+ */
+
+#EMenuTitleLabel {
+	padding-left: 4px;
+	color: solid black;
+        background: transparent;
+}
+
+
+#EMenuAtachMenuButton {
+        qproperty-icon: url(:/ed/images/restore-button.svg),
+                url(:/ed/images/restore-button-focused) disabled;
+        qproperty-iconSize: 16px;
+}
+
+
+#EMenuDetachMenuButton {
+        qproperty-icon: url(:/ed/images/detach-button.svg),
+                url(:/ed/images/detach-button-focused.svg) disabled;
+        qproperty-iconSize: 16px;
+}
+
+#EMenuTitleBar {
+	background: #3498db;
+        min-height: 25px;
+        padding: 2px;
+        border: 1px solid #3C3C3C;
+}
+
+
+ed--EMenuButton {
+        qproperty-colorHighlight: rgb(201, 14, 218);
+}
+
+QToolButton#EMenuButton {
+        border: none;
+        background: transparent;
+        min-height: 48px;
+        min-width: 48px;
+}
+
+ed--ESplitterHandle {
+        qproperty-handleColor: rgb(14, 129, 218);
+}
+
+ed--ETooltip {
+        qproperty-iconArrowColor: rgb(14, 129, 218);
+}
+
+QLabel#ETooltip {
+        background-color: #ccced0;
+        border-radius: 2px;
+        padding: 4px;
+        border: 1px solid #0465a6;
+        font-size: xx-large;
+        font-weight: normal;
+        color: rgb(21, 16, 16);
+}
+
+#EMenuTabBar {
+        background: #3498db;
+        min-height: 48px;
+        min-width: 48px;
+        border: 1px solid #3C3C3C;
+        border-radius: 1px;
+}
+
+#EMenuAreaWidget {
+        background: palette(window);
+        border: 1px solid rgb(163, 160, 160);
+        border-radius: 1px;
+}
